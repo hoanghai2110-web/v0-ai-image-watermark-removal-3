@@ -1,0 +1,32 @@
+HƯỚNG DẪN XỬ LÝ BACKEND XÓA WATERMARK GEMINI (STABILITY AI)
+===========================================================
+
+1. CHUẨN BỊ MASK (QUAN TRỌNG NHẤT)
+- Logo Gemini luôn nằm ở góc dưới bên phải.
+- Mask phải là ảnh Grayscale (Trắng/Đen).
+- Quy tắc: Vùng màu TRẮNG (White) là vùng AI sẽ vẽ đè lên (inpainting), vùng ĐEN (Black) là vùng giữ nguyên.
+- Kích thước Mask phải khớp 100% với kích thước ảnh gốc gửi lên.
+
+2. CẤU HÌNH API ENDPOINT
+- Sử dụng endpoint SDXL Masking để có kết quả tốt nhất:
+  URL: https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image/masking
+
+3. CẤU TRÚC MULTIPART/FORM-DATA
+- init_image: File ảnh gốc (binary).
+- mask_source: Gửi chuỗi "MASK_IMAGE_WHITE".
+- mask_image: File mask đã tạo ở bước 1 (binary).
+- text_prompts[0][text]: Prompt để AI biết nên vẽ gì vào vùng trống. 
+  Ví dụ: "seamless background, high resolution, remove watermark"
+- text_prompts[0][weight]: 1
+- cfg_scale: 7 (độ sáng tạo).
+- clip_guidance_preset: "FAST_BLUE".
+- steps: 30-50 (càng cao càng mịn nhưng tốn credit).
+
+4. LƯU Ý KỸ THUẬT
+- Headers: Phải có "Authorization: Bearer <API_KEY>" và "Accept: image/png" (để nhận trực tiếp file ảnh) hoặc "application/json" (để nhận base64).
+- Nếu dùng Node.js/Next.js: Sử dụng `FormData` và `fetch`. Đừng quên await response.arrayBuffer() nếu muốn xử lý file binary trả về.
+- Xử lý lỗi: Check status 400 (sai field), 401 (sai key), 402 (hết tiền), 500 (server Stability lỗi).
+
+5. MẸO XÓA SẠCH
+- Nếu xóa xong vẫn lem nhem: Tăng diện tích vùng Trắng trên Mask ra thêm 10-20 pixel xung quanh logo.
+- Prompt nên tập trung vào nội dung "background" thay vì nói "remove" để AI hiểu là cần bù đắp phông nền vào đó.
