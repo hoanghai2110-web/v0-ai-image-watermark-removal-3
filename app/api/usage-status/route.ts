@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Try to get user profile, but don't fail if table doesn't exist
     let isPremium = false
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
@@ -29,14 +28,16 @@ export async function GET(req: NextRequest) {
       isPremium = profile.is_premium
     }
 
-    // Try to get daily usage count, but don't fail if function doesn't exist
     let usageCount = 0
-    const { data: usageData, error: usageError } = await supabase.rpc("get_daily_usage_count", {
-      p_user_id: user.id,
-    })
+    const { data: usageData, error: usageError } = await supabase
+      .from("usage_logs")
+      .select("usage_count")
+      .eq("user_id", user.id)
+      .eq("used_at", new Date().toISOString().split("T")[0])
+      .single()
 
-    if (!usageError && typeof usageData === "number") {
-      usageCount = usageData
+    if (!usageError && usageData) {
+      usageCount = usageData.usage_count
     }
 
     return NextResponse.json({
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
       usageLimit: isPremium ? 500 : 5,
     })
   } catch (error) {
-    // Return a generic error but don't expose internal details
+    console.error("[v0] Usage status error:", error)
     return NextResponse.json({
       authenticated: false,
       isPremium: false,
