@@ -106,12 +106,12 @@ export default function WatermarkRemover() {
         </div>
 
         <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight text-foreground">
-          Fix blurry photos <br />
+          Fix blurry photos instantly<br />
           <span
             className="bg-gradient-to-r from-gray-600 to-gray-900 dark:from-gray-200 dark:to-white bg-clip-text text-transparent"
             style={{ WebkitBackgroundClip: "text" }}
           >
-            instantly.
+           .
           </span>
         </h1>
 
