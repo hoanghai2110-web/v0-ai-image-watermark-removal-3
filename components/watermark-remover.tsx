@@ -18,7 +18,6 @@ export default function WatermarkRemover() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const [usageStatus, setUsageStatus] = useState<UsageStatus | null>(null)
-
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -86,189 +85,164 @@ export default function WatermarkRemover() {
   }
 
   return (
-    <div className="relative z-10 px-3 pt-2 pb-8 flex flex-col items-center">
-
+    <div className="max-w-5xl mx-auto px-4 py-12">
       {/* ================= HEADER ================= */}
-      <div className="w-full text-center space-y-4 mb-8">
-        <div className="flex items-center justify-center gap-2 mb-2">
-  <div className="flex -space-x-2">
-    {[1, 2, 3].map((i) => (
-      <img
-        key={i}
-        alt="User avatar"
-        className="w-8 h-8 rounded-full border-2 border-background object-cover"
-        src={`/generic-fantasy-character.png?key=rxuf5&height=32&width=32&query=avatar-${i}`}
-      />
-    ))}
+      <div className="text-center mb-12">
+        <div className="flex justify-center items-center gap-2 mb-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-10 h-10 rounded-full bg-gray-200" />
+          ))}
+          <span className="text-sm font-medium">+2k happy users</span>
+        </div>
 
-    <div className="w-8 h-8 rounded-full border-2 border-background bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
-      +2k
-    </div>
-  </div>
-
-  <span className="text-sm text-muted-foreground font-medium">
-    happy users
-  </span>
-</div>
-
-</h1>
-
-
-        <p className="text-sm sm:text-base text-muted-foreground max-w-sm mx-auto">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Fix blurry photos instantly.
+        </h1>
+        <p className="text-gray-600 text-lg">
           Turn fuzzy memories into crystal-clear images with advanced AI restoration.
         </p>
+      </div>
 
-        {/* ================= USAGE BANNER ================= */}
-        <div className="w-full max-w-sm mx-auto min-h-[84px]">
-          {!usageStatus ? (
-            <div className="rounded-md border p-3 bg-muted/40 animate-pulse">
-              <div className="h-4 w-3/4 bg-muted rounded mb-2 mx-auto" />
-              <div className="h-3 w-1/2 bg-muted rounded mx-auto" />
-            </div>
-          ) : usageStatus.authenticated ? (
-            <div
-              className={`rounded-md p-3 text-sm border ${
-                usageStatus.isPremium
-                  ? "bg-yellow-50 border-yellow-100"
-                  : "bg-blue-50 border-blue-100"
-              }`}
-            >
-              <p className="font-medium flex items-center justify-center gap-2">
+      {/* ================= USAGE BANNER ================= */}
+      <div className="mb-8">
+        {!usageStatus ? (
+          <div className="bg-gray-100 p-4 rounded-lg text-center">
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        ) : usageStatus.authenticated ? (
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {usageStatus.isPremium && <Crown className="w-5 h-5 text-yellow-500" />}
+                <span className="font-medium">
+                  {usageStatus.usageCount}/{usageStatus.usageLimit} uses today
+                </span>
                 {usageStatus.isPremium && (
-                  <Crown className="h-4 w-4 text-yellow-600" />
-                )}
-                {usageStatus.usageCount}/{usageStatus.usageLimit} uses today
-                {usageStatus.isPremium && (
-                  <span className="text-[10px] bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded-sm uppercase font-bold">
+                  <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
                     Pro
                   </span>
                 )}
-              </p>
+              </div>
 
-              {!usageStatus.isPremium &&
-              usageStatus.usageCount >= (usageStatus.usageLimit || 5) ? (
-                <div className="mt-2 flex flex-col items-center gap-2">
-                  <p className="text-xs text-blue-700">
-                    You’ve reached today’s free limit.
-                  </p>
+              {!usageStatus.isPremium && usageStatus.usageCount >= (usageStatus.usageLimit || 5) ? (
+                <div className="text-right">
+                  <p className="text-sm text-gray-600 mb-2">You've reached today's free limit.</p>
                   <Link
                     href="/pricing"
-                    className="bg-primary text-white text-xs px-4 py-1.5 rounded-lg font-bold hover:bg-black transition"
+                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-black transition"
                   >
                     Upgrade to Pro
                   </Link>
                 </div>
               ) : (
                 !usageStatus.isPremium && (
-                  <Link
-                    href="/pricing"
-                    className="block text-center text-[10px] text-blue-600 mt-1 hover:underline"
-                  >
+                  <Link href="/pricing" className="text-blue-600 hover:underline text-sm">
                     Upgrade to Pro for 500 uses/month →
                   </Link>
                 )
               )}
             </div>
-          ) : (
-            <div className="rounded-md border border-yellow-100 bg-yellow-50 p-3 text-sm text-center">
-              <p className="font-medium text-yellow-900">
-                Sign in to get 5 free uses per day
-              </p>
-              <div className="flex justify-center gap-2 mt-2">
+          </div>
+        ) : (
+          <div className="bg-gray-100 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-700">Sign in to get 5 free uses per day</p>
+              <div className="flex gap-3">
                 <Link
-                  href="/auth/login"
-                  className="text-xs bg-primary text-white px-4 py-1.5 rounded-lg hover:bg-black transition"
+                  href="/signin"
+                  className="bg-white border px-4 py-2 rounded-lg hover:bg-gray-50 transition"
                 >
                   Sign in
                 </Link>
                 <Link
-                  href="/auth/sign-up"
-                  className="text-xs border px-4 py-1.5 rounded-lg hover:bg-gray-50 transition"
+                  href="/signup"
+                  className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-black transition"
                 >
                   Create account
                 </Link>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        {/* ================= UPLOAD ================= */}
-        <div className="flex flex-col gap-3 pt-2 w-full">
-          {!image ? (
-            <>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-primary hover:bg-black text-white py-3 px-6 rounded-lg flex items-center justify-center gap-3 transition"
-              >
-                <span className="material-icons-round">upload_file</span>
-                Upload an image
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleUpload}
-              />
-            </>
-          ) : (
-            <div className="space-y-4 w-full">
-              <div className="relative aspect-square sm:aspect-video rounded-md overflow-hidden border bg-white">
-                <img
-                  src={result || image}
-                  className="w-full h-full object-contain"
-                  alt="Preview"
-                />
-                {loading && (
-                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                    <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
-                  </div>
-                )}
+      {/* ================= UPLOAD ================= */}
+      <div className="bg-white border rounded-xl p-8 mb-12">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleUpload}
+          className="hidden"
+        />
+
+        {!image ? (
+          <>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full bg-primary hover:bg-black text-white py-3 px-6 rounded-lg flex items-center justify-center gap-3 transition"
+            >
+              <span className="material-icons">upload_file</span>
+              Upload an image
+            </button>
+          </>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-medium mb-2">Original</h3>
+                <img src={image} alt="Original" className="w-full rounded-lg" />
               </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setImage(null)
-                    setFile(null)
-                    setResult(null)
-                  }}
-                  className="p-3 border rounded-md hover:bg-gray-50 transition"
-                >
-                  <span className="material-icons-round">delete_outline</span>
-                </button>
-
-                <button
-                  onClick={handleRemoveWatermark}
-                  disabled={loading}
-                  className="flex-1 bg-primary hover:bg-black text-white py-3 rounded-lg font-bold transition disabled:opacity-50"
-                >
-                  {loading ? "Enhancing..." : "Restore now"}
-                </button>
-              </div>
+              {result && (
+                <div>
+                  <h3 className="font-medium mb-2">Enhanced</h3>
+                  <img src={result} alt="Enhanced" className="w-full rounded-lg" />
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {loading && (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setImage(null)
+                  setFile(null)
+                  setResult(null)
+                }}
+                className="p-3 border rounded-md hover:bg-gray-50 transition"
+              >
+                <span className="material-icons">delete_outline</span>
+              </button>
+              <button
+                onClick={handleRemoveWatermark}
+                disabled={loading}
+                className="flex-1 bg-primary hover:bg-black text-white py-3 px-6 rounded-lg transition disabled:opacity-50"
+              >
+                {loading ? "Enhancing..." : "Restore now"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ================= FEATURES ================= */}
-      <div className="w-full mt-10 space-y-4">
+      <div className="grid md:grid-cols-3 gap-6">
         {[
           ["motion_photos_on", "Fix motion blur automatically"],
           ["hd", "Enhance low-resolution images"],
           ["auto_fix_high", "Restore old & damaged photos"],
         ].map(([icon, title]) => (
-          <div
-            key={title}
-            className="border p-4 rounded-md flex gap-3 items-start bg-background"
-          >
-            <span className="material-icons-round text-lg">{icon}</span>
-            <div>
-              <h3 className="font-bold">{title}</h3>
-              <p className="text-sm text-muted-foreground">
-                AI intelligently restores clarity while preserving natural details.
-              </p>
-            </div>
+          <div key={icon} className="text-center p-6 bg-gray-50 rounded-lg">
+            <span className="material-icons text-4xl text-primary mb-3">{icon}</span>
+            <h3 className="font-semibold mb-2">{title}</h3>
+            <p className="text-sm text-gray-600">
+              AI intelligently restores clarity while preserving natural details.
+            </p>
           </div>
         ))}
       </div>
