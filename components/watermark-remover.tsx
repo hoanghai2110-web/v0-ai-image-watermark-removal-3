@@ -89,12 +89,21 @@ export default function WatermarkRemover() {
     <div className="relative z-10 px-3 pt-2 pb-8 flex flex-col items-center">
       {/* ================= HEADER ================= */}
       <div className="w-full text-center space-y-4 mb-8">
-        <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight">
-          Fix blurry photos <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-600 to-gray-900">
-            instantly.
-          </span>
-        </h1>
+        <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight text-foreground">
+  Fix blurry photos <br />
+  <span
+    className="
+      bg-gradient-to-r
+      from-gray-600 to-gray-900
+      dark:from-gray-200 dark:to-white
+      bg-clip-text text-transparent
+    "
+    style={{ WebkitBackgroundClip: "text" }}
+  >
+    instantly.
+  </span>
+</h1>
+
 
         <p className="text-sm sm:text-base text-muted-foreground max-w-sm mx-auto">
           Turn fuzzy memories into crystal-clear images with advanced AI restoration.
