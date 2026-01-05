@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Copy, Share2, TrendingUp, DollarSign, Users } from "lucide-react"
@@ -110,7 +109,6 @@ export default function AffiliatePage() {
   if (loading) {
     return (
       <main className="flex-grow w-full max-w-lg mx-auto relative overflow-hidden min-h-screen bg-[#f8fafc]">
-        <Header />
         <div className="px-6 py-16 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
@@ -124,7 +122,6 @@ export default function AffiliatePage() {
   if (!authenticated) {
     return (
       <main className="flex-grow w-full max-w-lg mx-auto relative overflow-hidden min-h-screen bg-[#f8fafc]">
-        <Header />
         <div className="px-6 py-16">
           <div className="text-center space-y-4">
             <h1 className="font-display font-bold text-3xl">Trở thành Đại lý</h1>
@@ -145,15 +142,7 @@ export default function AffiliatePage() {
 
   return (
     <main className="flex-grow w-full max-w-lg mx-auto relative overflow-hidden min-h-screen bg-[#f8fafc]">
-      <Header />
-
       <div className="px-6 py-8 space-y-8 inset-0 dot-bg">
-        {/* Header Section */}
-        <div className="space-y-2">
-          <h1 className="font-display font-bold text-3xl text-foreground">Chương trình Đại lý</h1>
-          <p className="text-muted-foreground">Kiếm hoa hồng 30% từ mỗi người bạn giới thiệu nâng cấp Pro</p>
-        </div>
-
         {/* Referral Link Section */}
         {stats && (
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 p-6 space-y-4">
@@ -279,10 +268,8 @@ export default function AffiliatePage() {
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-white font-bold text-sm">
-                    3
-                  </div>
+                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-white font-bold text-sm">
+                  3
                 </div>
               </div>
               <div>

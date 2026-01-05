@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "Xóa watermark ảnh Gemini, logo và vật thể thừa nhanh chóng với công nghệ Stability AI. Tối ưu di động, giao diện Neo Brutalism cực chất.",
   keywords: "xóa watermark, gemini ai, remove watermark, stability ai, chỉnh sửa ảnh ai",
 }
-
+z
 export default function Home() {
   return (
     <main className="w-full bg-[#f8fafc]">
