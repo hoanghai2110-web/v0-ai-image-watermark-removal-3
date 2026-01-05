@@ -90,20 +90,27 @@ export default function WatermarkRemover() {
 
       {/* ================= HEADER ================= */}
       <div className="w-full text-center space-y-4 mb-8">
-        <div className="flex items-center justify-center gap-2 mb-2"> <div className="flex -space-x-2"> {[1, 2, 3].map((i) => ( <img key={i} alt="User avatar" className="w-8 h-8 rounded-full border-2 border-background object-cover" src={/generic-fantasy-character.png?key=rxuf5&height=32&width=32&query=avatar-${i}} /> ))} <div className="w-8 h-8 rounded-full border-2 border-background bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600"> +2k </div> </div> <span className="text-sm text-muted-foreground font-medium">happy users</span> </div>
-        <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight text-foreground">
-  Fix blurry photos <br />
-  <span
-    className="
-      bg-gradient-to-r
-      from-gray-600 to-gray-900
-      dark:from-gray-200 dark:to-white
-      bg-clip-text text-transparent
-    "
-    style={{ WebkitBackgroundClip: "text" }}
-  >
-    instantly.
+        <div className="flex items-center justify-center gap-2 mb-2">
+  <div className="flex -space-x-2">
+    {[1, 2, 3].map((i) => (
+      <img
+        key={i}
+        alt="User avatar"
+        className="w-8 h-8 rounded-full border-2 border-background object-cover"
+        src={`/generic-fantasy-character.png?key=rxuf5&height=32&width=32&query=avatar-${i}`}
+      />
+    ))}
+
+    <div className="w-8 h-8 rounded-full border-2 border-background bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+      +2k
+    </div>
+  </div>
+
+  <span className="text-sm text-muted-foreground font-medium">
+    happy users
   </span>
+</div>
+
 </h1>
 
 
