@@ -35,7 +35,7 @@ export default function RootLayout({
         <Header />
 
         {/* ✅ CONTENT SCROLL RIÊNG */}
-        <main className="min-h-screen pt-16">
+        <main className="min-h-screen pt-0 nset-0 dot-bg">
           {children}
         </main>
 

@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <main className="w-full bg-[#f8fafc]">
       {/* Background pattern */}
-      <div className="fixed inset-0 dot-bg opacity-40 pointer-events-none -z-10" />
+      <div className="fixed opacity-40 pointer-events-none -z-10" />
 
       {/* Main content */}
       <div className="mx-auto max-w-lg px-6 pt-8 pb-32">
