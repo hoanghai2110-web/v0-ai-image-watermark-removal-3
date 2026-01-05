@@ -122,7 +122,7 @@ export default function WatermarkRemover() {
   }
 
   return (
-    <div className="relative z-10 px-6 pt-4 pb-16 flex flex-col items-center">
+    <div className="relative z-10 px-3 pt-2 pb-8 flex flex-col items-center">
       <div className="w-full text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="flex -space-x-2">
