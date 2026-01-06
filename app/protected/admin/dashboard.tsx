@@ -66,11 +66,11 @@ export default function AdminDashboard() {
   }
 
   if (loading) {
-    return <div className="p-8">Loading...</div>
+    return <div className="p-4">Loading...</div>
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
