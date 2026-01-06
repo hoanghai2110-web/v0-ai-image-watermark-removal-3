@@ -14,18 +14,21 @@ export async function GET(req: NextRequest) {
         isPremium: false,
         usageCount: 0,
         usageLimit: 5,
+        isAdmin: false,
       })
     }
 
     let isPremium = false
+    let isAdmin = false
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("is_premium")
+      .select("is_premium, is_admin")
       .eq("id", user.id)
       .single()
 
     if (!profileError && profile) {
       isPremium = profile.is_premium
+      isAdmin = profile.is_admin
     }
 
     let usageCount = 0
@@ -46,6 +49,7 @@ export async function GET(req: NextRequest) {
       isPremium,
       usageCount,
       usageLimit: isPremium ? 500 : 5,
+      isAdmin,
     })
   } catch (error) {
     console.error("[v0] Usage status error:", error)
@@ -54,6 +58,7 @@ export async function GET(req: NextRequest) {
       isPremium: false,
       usageCount: 0,
       usageLimit: 5,
+      isAdmin: false,
     })
   }
 }

@@ -19,6 +19,7 @@ interface UsageStatus {
   isPremium: boolean
   usageCount: number
   usageLimit: number | null
+  isAdmin?: boolean
 }
 
 export function Header() {
@@ -109,6 +110,17 @@ export function Header() {
                       <Link href="/pricing" className="cursor-pointer">
                         <CreditCard className="h-4 w-4 mr-2 text-primary" />
                         Nâng cấp Pro
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {usageStatus.isAdmin && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/protected/admin" className="cursor-pointer">
+                        <span className="material-icons-round mr-2 text-sm">admin_panel_settings</span>
+                        Admin Dashboard
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
