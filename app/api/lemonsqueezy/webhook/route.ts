@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { recordAffiliateEarningAction } from "@/app/actions/referral"
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,10 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 401 })
     }
 
-    const digest = crypto
-      .createHmac("sha256", secret)
-      .update(rawBody)
-      .digest("hex")
+    const digest = crypto.createHmac("sha256", secret).update(rawBody).digest("hex")
 
     if (digest !== signature) {
       console.error("[WEBHOOK] Invalid signature")
@@ -51,10 +49,12 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient()
 
     /* --------------------------------------------------
-       4. ORDER CREATED → SET PREMIUM
+       4. ORDER CREATED → SET PREMIUM + TRACK AFFILIATE
     -------------------------------------------------- */
     if (eventName === "order_created") {
       const email = attributes?.user_email
+      const orderId = payload?.data?.id?.toString()
+      const totalPrice = attributes?.total ?? 0
 
       if (!email) {
         return NextResponse.json({ error: "Missing user email" }, { status: 400 })
@@ -87,15 +87,31 @@ export async function POST(req: NextRequest) {
       }
 
       console.log("[WEBHOOK] Premium enabled for:", email)
+
+      const { data: referralData } = await supabase
+        .from("referrals")
+        .select("affiliate_id")
+        .eq("referred_user_id", profile.id)
+        .single()
+
+      if (referralData?.affiliate_id) {
+        try {
+          await recordAffiliateEarningAction(referralData.affiliate_id, profile.id, orderId || "unknown", totalPrice)
+          console.log("[WEBHOOK] Affiliate earnings recorded:", {
+            affiliateId: referralData.affiliate_id,
+            referredUserId: profile.id,
+            amount: totalPrice,
+          })
+        } catch (afError) {
+          console.error("[WEBHOOK] Failed to record affiliate earning:", afError)
+        }
+      }
     }
 
     /* --------------------------------------------------
        5. SUBSCRIPTION EVENTS
     -------------------------------------------------- */
-    if (
-      eventName === "subscription_created" ||
-      eventName === "subscription_updated"
-    ) {
+    if (eventName === "subscription_created" || eventName === "subscription_updated") {
       const userId = customData.user_id
       const status = attributes.status
 
@@ -115,10 +131,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (
-      eventName === "subscription_expired" ||
-      eventName === "subscription_terminated"
-    ) {
+    if (eventName === "subscription_expired" || eventName === "subscription_terminated") {
       const userId = customData.user_id
 
       if (userId) {

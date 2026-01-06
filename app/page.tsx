@@ -15,7 +15,7 @@ export default function Home() {
       <div className="fixed opacity-40 pointer-events-none -z-10" />
 
       {/* Main content */}
-      <div className="mx-auto max-w-lg px-6 pt-8 pb-32 inset-0 dot-bg">
+      <div className="mx-auto max-w-lg px-4 pt-8 pb-32 inset-0 dot-bg">
         <WatermarkRemover />
 
         {/* Social proof */}
