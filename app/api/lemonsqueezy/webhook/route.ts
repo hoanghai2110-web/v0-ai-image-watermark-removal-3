@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { recordAffiliateEarningAction } from "@/app/actions/referral"
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,15 +94,26 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (referralData?.affiliate_id) {
-        try {
-          await recordAffiliateEarningAction(referralData.affiliate_id, profile.id, orderId || "unknown", totalPrice)
+        const commissionAmount = Math.round((totalPrice * 0.3 * 100) / 100)
+
+        const { error: earningError } = await supabase.from("affiliate_earnings").insert({
+          affiliate_id: referralData.affiliate_id,
+          referred_user_id: profile.id,
+          subscription_id: orderId || "unknown",
+          purchase_amount: totalPrice,
+          commission_amount: commissionAmount,
+          status: "completed",
+        })
+
+        if (earningError) {
+          console.error("[WEBHOOK] Failed to record affiliate earning:", earningError)
+        } else {
           console.log("[WEBHOOK] Affiliate earnings recorded:", {
             affiliateId: referralData.affiliate_id,
             referredUserId: profile.id,
-            amount: totalPrice,
+            commissionAmount,
+            purchaseAmount: totalPrice,
           })
-        } catch (afError) {
-          console.error("[WEBHOOK] Failed to record affiliate earning:", afError)
         }
       }
     }
