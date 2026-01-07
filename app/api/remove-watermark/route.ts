@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { watermarkRemover } from "@/lib/watermark-remover"
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,36 +63,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Không tìm thấy ảnh" }, { status: 400 })
     }
 
-    const geminiFormData = new FormData()
-    geminiFormData.append("image", image)
+    console.log("[v0] Processing image locally with Reverse Alpha Blending")
 
-    console.log("[v0] Sending request to Gemini API...")
-    console.log("[v0] Image size:", image.size, "bytes")
+    const imageBuffer = Buffer.from(await image.arrayBuffer())
+    const processedBuffer = await watermarkRemover.removeWatermark(imageBuffer)
 
-    const response = await fetch("https://7d1f9940.gemini-bin.pages.dev/api/remove-sparkle", {
-      method: "POST",
-      body: geminiFormData,
-    })
-
-    console.log("[v0] Gemini API response status:", response.status)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("[v0] Gemini API Error:", errorText, "Status:", response.status)
-      try {
-        const errorJson = JSON.parse(errorText)
-        return NextResponse.json({ error: `Lỗi xử lý ảnh: ${errorJson.error}` }, { status: response.status })
-      } catch {
-        return NextResponse.json({ error: "Lỗi xử lý ảnh" }, { status: response.status })
-      }
-    }
-
-    const imageBlob = await response.blob()
-    console.log("[v0] Response blob size:", imageBlob.size, "bytes")
-
-    const buffer = await imageBlob.arrayBuffer()
-    const base64Image = Buffer.from(buffer).toString("base64")
-    console.log("[v0] Base64 encoded, length:", base64Image.length)
+    const base64Image = processedBuffer.toString("base64")
+    console.log("[v0] Watermark removed successfully, size:", base64Image.length)
 
     const { error: logError } = await supabase.from("usage_logs").insert({
       user_id: user.id,
