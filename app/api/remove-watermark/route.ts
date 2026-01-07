@@ -47,53 +47,35 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData()
     const image = formData.get("image") as Blob
-    const mask = formData.get("mask") as Blob
 
     if (!image) {
       return NextResponse.json({ error: "Không tìm thấy ảnh" }, { status: 400 })
     }
 
-    const stabilityFormData = new FormData()
-    stabilityFormData.append("init_image", image)
-    if (mask) {
-      stabilityFormData.append("mask_image", mask)
-    }
-    stabilityFormData.append("mask_source", "MASK_IMAGE_WHITE")
+    const geminiFormData = new FormData()
+    geminiFormData.append("image", image)
 
-    stabilityFormData.append(
-      "text_prompts[0][text]",
-      "seamless background, high quality, clean texture, no logos, no text",
-    )
-    stabilityFormData.append("text_prompts[0][weight]", "1")
+    console.log("[v0] Sending request to Gemini API...")
 
-    stabilityFormData.append("cfg_scale", "7")
-    stabilityFormData.append("clip_guidance_preset", "FAST_BLUE")
-    stabilityFormData.append("sampler", "K_DPM_2_ANCESTRAL")
-    stabilityFormData.append("samples", "1")
-    stabilityFormData.append("steps", "30")
-
-    console.log("[v0] Sending request to Stability AI...")
-
-    const response = await fetch(
-      "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image/masking",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.STABILITY_API_KEY}`,
-          Accept: "application/json",
-        },
-        body: stabilityFormData,
-      },
-    )
+    const response = await fetch("https://7d1f9940.gemini-bin.pages.dev/api/remove-sparkle", {
+      method: "POST",
+      body: geminiFormData,
+    })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("[v0] Stability AI Error Details:", errorText)
-      return NextResponse.json({ error: `Lỗi từ Stability AI: ${errorText}` }, { status: response.status })
+      console.error("[v0] Gemini API Error:", errorText)
+      try {
+        const errorJson = JSON.parse(errorText)
+        return NextResponse.json({ error: `Lỗi xử lý ảnh: ${errorJson.error}` }, { status: response.status })
+      } catch {
+        return NextResponse.json({ error: "Lỗi xử lý ảnh" }, { status: response.status })
+      }
     }
 
-    const result = await response.json()
-    const base64Image = result.artifacts[0].base64
+    const imageBlob = await response.blob()
+    const buffer = await imageBlob.arrayBuffer()
+    const base64Image = Buffer.from(buffer).toString("base64")
 
     const { error: logError } = await supabase.from("usage_logs").insert({
       user_id: user.id,
@@ -101,7 +83,6 @@ export async function POST(req: NextRequest) {
 
     if (logError) {
       console.error("[v0] Usage Log Error:", logError)
-      // Don't fail the request if logging fails, just log the error
     }
 
     return NextResponse.json({ image: `data:image/png;base64,${base64Image}` })
