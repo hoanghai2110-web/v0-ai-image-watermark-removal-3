@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Crown } from "lucide-react"
@@ -69,8 +71,12 @@ export default function WatermarkRemover() {
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) {
+        console.error("[v0] API Error Response:", res.status, data)
+        throw new Error(data.error)
+      }
 
+      console.log("[v0] Image processing successful")
       setResult(data.image)
       fetchUsageStatus()
     } catch (err: any) {
@@ -106,12 +112,13 @@ export default function WatermarkRemover() {
         </div>
 
         <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight text-foreground">
-          Fix blurry photos instantly<br />
+          Fix blurry photos instantly
+          <br />
           <span
             className="bg-gradient-to-r from-gray-600 to-gray-900 dark:from-gray-200 dark:to-white bg-clip-text text-transparent"
             style={{ WebkitBackgroundClip: "text" }}
           >
-           .
+            .
           </span>
         </h1>
 
@@ -129,15 +136,11 @@ export default function WatermarkRemover() {
           ) : usageStatus.authenticated ? (
             <div
               className={`rounded-md p-3 text-sm border ${
-                usageStatus.isPremium
-                  ? "bg-yellow-50 border-yellow-100"
-                  : "bg-blue-50 border-blue-100"
+                usageStatus.isPremium ? "bg-yellow-50 border-yellow-100" : "bg-blue-50 border-blue-100"
               }`}
             >
               <p className="font-medium flex items-center justify-center gap-2">
-                {usageStatus.isPremium && (
-                  <Crown className="h-4 w-4 text-yellow-600" />
-                )}
+                {usageStatus.isPremium && <Crown className="h-4 w-4 text-yellow-600" />}
                 {usageStatus.usageCount}/{usageStatus.usageLimit} uses today
                 {usageStatus.isPremium && (
                   <span className="text-[10px] bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded-sm uppercase font-bold">
@@ -145,12 +148,9 @@ export default function WatermarkRemover() {
                   </span>
                 )}
               </p>
-              {!usageStatus.isPremium &&
-              usageStatus.usageCount >= (usageStatus.usageLimit || 5) ? (
+              {!usageStatus.isPremium && usageStatus.usageCount >= (usageStatus.usageLimit || 5) ? (
                 <div className="mt-2 flex flex-col items-center gap-2">
-                  <p className="text-xs text-blue-700">
-                    You&apos;ve reached today&apos;s free limit.
-                  </p>
+                  <p className="text-xs text-blue-700">You&apos;ve reached today&apos;s free limit.</p>
                   <Link
                     href="/pricing"
                     className="bg-primary text-white text-xs px-4 py-1.5 rounded-lg font-bold hover:bg-black transition"
@@ -160,10 +160,7 @@ export default function WatermarkRemover() {
                 </div>
               ) : (
                 !usageStatus.isPremium && (
-                  <Link
-                    href="/pricing"
-                    className="block text-center text-[10px] text-blue-600 mt-1 hover:underline"
-                  >
+                  <Link href="/pricing" className="block text-center text-[10px] text-blue-600 mt-1 hover:underline">
                     Upgrade to Pro for 500 uses/month →
                   </Link>
                 )
@@ -171,9 +168,7 @@ export default function WatermarkRemover() {
             </div>
           ) : (
             <div className="rounded-md border border-yellow-100 bg-yellow-50 p-3 text-sm text-center">
-              <p className="font-medium text-yellow-900">
-                Sign in to get 5 free uses per day
-              </p>
+              <p className="font-medium text-yellow-900">Sign in to get 5 free uses per day</p>
               <div className="flex justify-center gap-2 mt-2">
                 <Link
                   href="/auth/login"
@@ -203,22 +198,12 @@ export default function WatermarkRemover() {
                 <span className="material-icons-round">upload_file</span>
                 Upload an image
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleUpload}
-              />
+              <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleUpload} />
             </>
           ) : (
             <div className="space-y-4 w-full">
               <div className="relative aspect-square sm:aspect-video rounded-md overflow-hidden border bg-white">
-                <img
-                  src={result || image}
-                  className="w-full h-full object-contain"
-                  alt="Preview"
-                />
+                <img src={result || image} className="w-full h-full object-contain" alt="Preview" />
                 {loading && (
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
                     <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
@@ -256,10 +241,7 @@ export default function WatermarkRemover() {
           ["hd", "Enhance low-resolution images"],
           ["auto_fix_high", "Restore old & damaged photos"],
         ].map(([icon, title]) => (
-          <div
-            key={title}
-            className="border p-4 rounded-md flex gap-3 items-start bg-background"
-          >
+          <div key={title} className="border p-4 rounded-md flex gap-3 items-start bg-background">
             <span className="material-icons-round text-lg">{icon}</span>
             <div>
               <h3 className="font-bold">{title}</h3>
