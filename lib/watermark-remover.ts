@@ -31,9 +31,13 @@ export class WatermarkRemover {
         const data = imageData.data
         const alphaMap = new Float32Array(data.length / 4)
 
-        // Extract alpha values from reference image
+        // This represents watermark transparency at each pixel
         for (let i = 0; i < data.length; i += 4) {
-          alphaMap[i / 4] = data[i + 3] / 255 // Normalize alpha to 0-1
+          const r = data[i]
+          const g = data[i + 1]
+          const b = data[i + 2]
+          // Normalize max channel to 0-1
+          alphaMap[i / 4] = Math.max(r, g, b) / 255.0
         }
         resolve(alphaMap)
       }
@@ -52,6 +56,7 @@ export class WatermarkRemover {
           // Detect watermark size based on image dimensions
           const isLarge = img.width > 1024 || img.height > 1024
           const watermarkSize = isLarge ? 96 : 48
+          const margin = isLarge ? 64 : 32
           const alphaMap = isLarge ? this.alphaMap96 : this.alphaMap48
 
           if (!alphaMap) {
@@ -69,23 +74,40 @@ export class WatermarkRemover {
           const imageData = ctx.getImageData(0, 0, img.width, img.height)
           const data = imageData.data
 
-          // Apply reverse alpha blending formula
-          // Pixel_original = (Pixel_final - (α × 255)) / (1 - α)
-          for (let i = 0; i < data.length; i += 4) {
-            const pixelIndex = i / 4
-            if (pixelIndex < alphaMap.length) {
-              const alpha = alphaMap[pixelIndex]
+          const watermarkX = img.width - margin - watermarkSize
+          const watermarkY = img.height - margin - watermarkSize
 
-              if (alpha > 0.01) {
-                // Only process pixels with watermark
-                // R channel
-                data[i] = Math.max(0, Math.min(255, (data[i] - alpha * 255) / (1 - alpha)))
-                // G channel
-                data[i + 1] = Math.max(0, Math.min(255, (data[i + 1] - alpha * 255) / (1 - alpha)))
-                // B channel
-                data[i + 2] = Math.max(0, Math.min(255, (data[i + 2] - alpha * 255) / (1 - alpha)))
-                // Keep original alpha
+          // Formula: Pixel_original = (Pixel_final - (α × 255)) / (1 - α)
+          const ALPHA_THRESHOLD = 0.002
+          const MAX_ALPHA = 0.99
+          const LOGO_VALUE = 255
+
+          for (let row = 0; row < watermarkSize; row++) {
+            for (let col = 0; col < watermarkSize; col++) {
+              const imgY = watermarkY + row
+              const imgX = watermarkX + col
+
+              // Bounds check
+              if (imgX < 0 || imgX >= img.width || imgY < 0 || imgY >= img.height) continue
+
+              const imgIdx = (imgY * img.width + imgX) * 4
+              const alphaIdx = row * watermarkSize + col
+
+              let alpha = alphaMap[alphaIdx]
+
+              // Skip pixels with very low alpha (no watermark)
+              if (alpha < ALPHA_THRESHOLD) continue
+
+              // Clamp alpha to max value
+              alpha = Math.min(alpha, MAX_ALPHA)
+
+              // Apply reverse alpha blending to each RGB channel
+              for (let c = 0; c < 3; c++) {
+                const watermarked = data[imgIdx + c]
+                const original = (watermarked - alpha * LOGO_VALUE) / (1.0 - alpha)
+                data[imgIdx + c] = Math.max(0, Math.min(255, Math.round(original)))
               }
+              // Keep original alpha channel
             }
           }
 
